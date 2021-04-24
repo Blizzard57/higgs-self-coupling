@@ -1,0 +1,5 @@
+import model heft
+define pb = g u d c s b u~ d~ c~ s~ b~
+generate pb pb > h h, (h > b b~, h > W+ W-)
+output ../test_results/hh_4b_test1
+launch
