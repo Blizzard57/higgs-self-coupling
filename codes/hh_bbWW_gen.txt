@@ -1,0 +1,13 @@
+import model heft
+define w = w+ w-
+generate p p > h h, (h > w w,w+ > vl l+,w- > vl~ l-), (h > b b~)
+output ../Tests/hh_bbWW_2
+launch
+1
+2
+3
+
+../Tests/MPNN_Cards/run_card.dat
+../Tests/MPNN_Cards/delphes_card.dat
+
+exit
