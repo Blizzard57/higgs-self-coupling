@@ -7,7 +7,7 @@ launch
 2
 3
 
-../Tests/MPNN_Cards/run_card.dat
-../Tests/MPNN_Cards/delphes_card.dat
+~/Tests/MPNN_Cards/run_card.dat
+~/Tests/MPNN_Cards/delphes_card.dat
 
 exit
