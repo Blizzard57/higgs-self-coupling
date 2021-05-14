@@ -115,9 +115,9 @@ class GenDataset():
         	EntryFromBranch = File.Electron.GetEntries()
         	for j in range(EntryFromBranch):
         		Electron = TLorentzVector()
-        		Electron.SetPtEtaPhiM(File.GetLeaf("Electron.PT").GetValue(j),File.GetLeaf("Electron.Eta").GetValue(j),File.GetLeaf     ("Electron.Phi").GetValue(j),0)
+        		Electron.SetPtEtaPhiM(File.GetLeaf("Electron.PT").GetValue(j),File.GetLeaf("Electron.Eta").GetValue(j),File.GetLeaf("Electron.Phi").GetValue(j),0)
 
-        		particleArray = [0,int(File.GetLeaf("Electron.Charge").GetValue(j)),0,0,File.GetLeaf("Electron.PT").GetValue(j),        Electron.Energy(),0]
+        		particleArray = [0,int(File.GetLeaf("Electron.Charge").GetValue(j)),0,0,File.GetLeaf("Electron.PT").GetValue(j),Electron.Energy(),0]
         		epArray.append(particleArray)
 
         		az_angle.append(File.GetLeaf("Electron.Phi").GetValue(j))
@@ -163,7 +163,7 @@ class GenDataset():
         				tempAng.append(fabs(az_angle[i] - az_angle[j]))
         			ezArray.append(tempAng)
 
-        	eventDict.append({"fourMomenta" : epArray,"azimuthalAngle" : ezArray})
+        	eventDict.append({"fourMomenta" : epArray,"azimuthalAngle" : ezArray,"phiList" : az_angle,"etaList" : ra_angle})
 
         self.datasetDict = eventDict
 
@@ -253,6 +253,15 @@ class GenDataset():
 
         return particleArray,azArray
 
+    def printPretty(self, record):
+        '''
+        Prints any 4-momenta record in a tabular manner.
+        '''
+        print(" Photon | Lepton | Jet  | MET |  pt   |   E   |  mass ")
+        print("------------------------------------------------------")
+        for i in record:
+            print("   "+ str(i[0]) + "    |" + "   " +str('%2d' % i[1]) + "   |" + "  "+str('%2d'%i[2])+"  |" + "  "+ str(i[3]) + "  |" + str('%7.3f' % i[4]) + "|" + str('%7.3f' % i[5]) + "|" + str('%7.3f' % i[6]))
+
     def getPlots(self,arrayType : str,recordNo : int = 0):
         '''
         Print any record of the dataset in a tabular format
@@ -291,10 +300,136 @@ class GenDataset():
                 for j in range(partNo):
                     print('%10.5f'%self.datasetDict[recordNo]["azimuthalAngle"][i][j] + "|",end="")
                 print()
+    
+    def baselineCuts(self):
+        '''
+        Applying baseline cuts to the events. There cuts are meant to increase the sigmal ratio.
+
+        Parameters :
+        ------------
+        Nothing
+
+        Returns :
+        ---------
+        Nothing
+        '''
+        if self.datasetDict == []:
+            self.createArrays()
+
+
+        tempDictList = []
+
+        for i in self.datasetDict:
+            
+            noJets = 0
+            ptJetsb = []
+            ptAllJets = []
+            jetIndex = []
+
+            noLepton = 0
+            totChargeLepton = 0
+            leptonIndex = []
+
+            flag = True
+
+            for momenta in i["fourMomenta"]:
+                
+                # Cuts for Leading Jet being b-tagged
+                # Leading Jets are Higher PT Jets
+            
+                if momenta[2] == 1:
+                    noJets += 1
+                    ptJetsb.append(momenta[4])
+                    ptAllJets.append(momenta[4])
+                    jetIndex.append(i["fourMomenta"].index(momenta))
+                    
+                elif momenta[2] == -1:
+                    noJets += 1
+                    ptAllJets.append(momenta[4])
+                    jetIndex.append(i["fourMomenta"].index(momenta))
+
+                # Cuts for Number of Leptons being two
+                # And both having opposite charge
+
+                if momenta[1] != 0:
+                    noLepton += 1
+                    totChargeLepton += momenta[1]
+                    leptonIndex.append(i["fourMomenta"].index(momenta))
+                    
+                    if momenta[4] <= 20:
+                        flag = False
+            
+                # Modulus of ETmiss > 20
+                if momenta[3] == 1:
+                    if momenta[4] <= 20:
+                        flag = False
+
+            for id1 in jetIndex:
+                for id2 in jetIndex:
+                    if i['azimuthalAngle'][id1][id2] >= 1.3:
+                        flag = False
+
+                    if id1 != id2:
+                        if i['fourMomenta'][id1][2] == 1 and i['fourMomenta'][id2][2] == 1:
+                            Jet1 = TLorentzVector()
+                            Jet2 = TLorentzVector()
+
+                            Jet1.SetPtEtaPhiM(i['fourMomenta'][id1][4],i['etaList'][id1],i['phiList'][id1],i['fourMomenta'][id1][-1])
+                            Jet2.SetPtEtaPhiM(i['fourMomenta'][id2][4],i['etaList'][id2],i['phiList'][id2],i['fourMomenta'][id2][-1])
+
+                            if (Jet1 + Jet2).M() >= 140 or (Jet1 + Jet2).M() <= 95:
+                                flag = False
+
+            for id1 in leptonIndex:
+                for id2 in leptonIndex:
+                    if i['azimuthalAngle'][id1][id2] >= 1.0:
+                        flag = False  
+
+                    if id1 != id2:
+                        if i['fourMomenta'][id1][1] != 0 and i['fourMomenta'][id2][1] != 0:
+                            Lepton1 = TLorentzVector()
+                            Lepton2 = TLorentzVector()
+
+                            Lepton1.SetPtEtaPhiM(i['fourMomenta'][id1][4],i['etaList'][id1],i['phiList'][id1],i['fourMomenta'][id1][-1])
+                            Lepton2.SetPtEtaPhiM(i['fourMomenta'][id2][4],i['etaList'][id2],i['phiList'][id2],i['fourMomenta'][id2][-1])
+
+                            #print((Lepton1 + Lepton2).M())
+                            if (Lepton1 + Lepton2).M() >= 65:
+                                flag = False                       
+            
+            # Record invalid is less than 2 b-tagged Jets
+            if len(ptJetsb) < 2:
+                continue
+
+            # Record invalid if the two leading momenta are not of b-tagged Jets
+            ptAllJets.sort(reverse=True)
+            if ptAllJets[0] not in ptJetsb or ptAllJets[1] not in ptJetsb or ptAllJets[1] < 30:
+                continue
+
+            # Discard if No of Leptons not 2 or they do not have opposite charges
+            if noLepton != 2 or totChargeLepton != 0:
+                continue
+
+            if flag == False:
+                continue
+
+            tempDictList.append(i)
+
+        self.datasetDict = tempDictList
+        self.totalEvents = len(tempDictList)
 
 if __name__ == "__main__":
-    s1 = GenDataset("/home/blizzard/Tests/hh_bbWW/Events/run_01/tag_1_delphes_events.root")
-    s1.createDataset("../datasets/SampleDataset.h5")
-    val = np.random.randint(0,1000)
-    s1.getPlots("fourMomenta",val)
-    s1.getPlots("azimuthalAngle",val)
+    s1 = GenDataset("/home/blizzard/Tests/hh_bbWW_with_Cards/Events/run_01/tag_1_delphes_events.root")
+    s1.baselineCuts()
+    #val = np.random.randint(0,s1.totalEvents)
+    # s1.getPlots("fourMomenta",val)
+    # s1.getPlots("azimuthalAngle",val)
+    # print()
+    print(len(s1.datasetDict),s1.totalEvents)
+#
+#    for i in range(s1.totalEvents):
+#        s1.getPlots("fourMomenta",i)
+#        print()
+#        s1.getPlots("azimuthalAngle",i)
+#        print()
+#        print()

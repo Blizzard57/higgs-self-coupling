@@ -6,5 +6,5 @@ from dataClass import GenDataset
 
 os.chdir("/home/blizzard/HiggsCoupling/codes")
 os.system("~/Applications/madGraph/bin/mg5_aMC ~/HiggsCoupling/codes/gen_madgraph_proc.txt")
-s1 = GenDataset("~/Tests/hh_bbWW_3/Events/run_01/tag_1_delphes_events.root")
-s1.createDataset("../datasets/test3Dataset.h5")
+s1 = GenDataset("~/Tests/hh_bbWW_with_Cards/Events/run_01/tag_1_delphes_events.root")
+s1.createDataset("../datasets/cutsAppliedDataset.h5")
