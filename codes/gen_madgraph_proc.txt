@@ -1,7 +1,7 @@
 import model heft
 define w = w+ w-
-generate p p > h h, (h > w w,w+ > vl l+,w- > vl~ l-), (h > b b~)
-output ~/Tests/hh_bbWW_Cards_EtaPhi
+generate p p > t t~, (t > w+ b, w+ > vl l+), (t~ > w- b~, w- > vl~ l-)
+output ~/Tests/Background/ttbar_bbWW_10k
 launch
 1
 2
