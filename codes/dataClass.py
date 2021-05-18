@@ -86,6 +86,7 @@ class GenDataset:
         File.Add(self.delphesFile)
         self.totalEvents = File.GetEntries()
 
+        print("INFO : Started Filtering Particles")
         eventDict = []
         for i in range(self.totalEvents):
         	Entry = File.GetEntry(i)
@@ -186,6 +187,7 @@ class GenDataset:
                               "phiList" : az_angle,"etaList" : ra_angle})
 
         self.datasetDict = eventDict
+        print("INFO : Done Filtering Particles")
 
     def createDataset(self,outputFile : str):
         '''
@@ -207,6 +209,8 @@ class GenDataset:
         if self.datasetDict == None:
             self.createArrays()
         
+        print("INFO : Started Creating Database")
+
         xArray = []
         for i in range(self.totalEvents):
             xArray.append(self.datasetDict[i]["fourMomenta"])
@@ -235,6 +239,9 @@ class GenDataset:
 
         hf.close()
 
+        print("INFO : Done Creating Database")
+        print("INFO : Database stored at " + str(outputFile))
+
     def getArraysFromFile(self,inputFile : str):
         '''
         Accessor function that gives back lists from hdf5 file. Due to the various conversions from 
@@ -254,6 +261,9 @@ class GenDataset:
         azArray : list
             The list that contains the azimuthal angle of every particle in every event.
         '''
+
+        print("INFO : Started Getting Data From File")
+
         hf = h5py.File(inputFile,'r')
         partArray = hf.get("ParticleArray")
         azimuthalArray = hf.get("AzimuthalAngle")
@@ -271,6 +281,7 @@ class GenDataset:
             {k: np.asarray(v) for k, v in azimuthalArray.items()},
         )
         azArray = ak.to_list(reconstitutedAzAngle)
+        print("INFO :  Done Getting Data from File")
 
         return particleArray,azArray
 
@@ -355,6 +366,7 @@ class GenDataset:
         if self.datasetDict == []:
             self.createArrays()
 
+        print("INFO : Applying Baseline Cuts")
         # The dictionary where events that survive the cuts are added
         tempDictList = []
 
@@ -469,20 +481,19 @@ class GenDataset:
             if not flag:
                 continue
 
-            print("Here")
             tempDictList.append(i)
 
-        print(len(tempDictList))
         self.datasetDict = tempDictList
         self.totalEvents = len(tempDictList)
+        print("INFO : Done Applying Baseline Cuts")
 
 if __name__ == "__main__":
-    s1 = GenDataset("/home/blizzard/Tests/Background/taubb_10k/Events/run_01/tag_1_delphes_events.root")
-    s1.createDataset('../datasets/partonCuts/taubb_background_10k.h5')
-    s1.baselineCuts()
-    s1.createDataset('../datasets/baselineCuts/taubb_background_10k.h5')
-    #val = np.random.randint(0,s1.totalEvents)
-    #s1.getPlots("fourMomenta",val)
-    #s1.getPlots("azimuthalAngle",val)
+    s1 = GenDataset("/home/blizzard/Tests/Signal/hh_bbWjj_10k/Events/run_01/tag_1_delphes_events.root")
+    s1.createDataset('../datasets/partonCuts/hhWjj_Signal_10k.h5')
+    val = np.random.randint(0,s1.totalEvents)
+    s1.getPlots("fourMomenta",val)
+    s1.getPlots("azimuthalAngle",val)
     #print()
-    print(len(s1.datasetDict),s1.totalEvents)
+    s1.baselineCuts()
+    s1.createDataset('../datasets/baselineCuts/hhWjj_Signal_10k.h5')
+    print("INFO : The amount of events that survived are " + str(len(s1.datasetDict)))
