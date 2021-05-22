@@ -487,12 +487,12 @@ class GenDataset:
         print("INFO : Done Applying Baseline Cuts")
 
 if __name__ == "__main__":
-    s1 = GenDataset("/home/blizzard/Tests/Signal/hh_bbWjj_10k/Events/run_01/tag_1_delphes_events.root")
-    s1.createDataset('../datasets/partonCuts/hhWjj_Signal_10k.h5')
+    s1 = GenDataset("/home/blizzard/Tests/Background/ttV_10k/Events/run_01/tag_1_delphes_events.root")
+    s1.createDataset('../../datasets/partonCuts/ttV_10k.h5')
     val = np.random.randint(0,s1.totalEvents)
     s1.getPlots("fourMomenta",val)
     s1.getPlots("azimuthalAngle",val)
     #print()
     s1.baselineCuts()
-    s1.createDataset('../datasets/baselineCuts/hhWjj_Signal_10k.h5')
+    s1.createDataset('../../datasets/baselineCuts/ttV_10k.h5')
     print("INFO : The amount of events that survived are " + str(len(s1.datasetDict)))
