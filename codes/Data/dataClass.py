@@ -43,7 +43,7 @@ class GenDataset:
     getArraysFromFile()
         Accessor to get the dataset back from the .h5 file
 
-    getPlots()
+    printPretty()
         Prints tables for the 4-momenta and the azimuthal angle for an event
     '''
     def __init__(self,delphesRootFile : str,isRapid : bool = True):
@@ -218,23 +218,51 @@ class GenDataset:
         for i in range(self.totalEvents):
             azArray.append(self.datasetDict[i]["azimuthalAngle"])
 
+        eta = []
+        for i in range(self.totalEvents):
+            eta.append(self.datasetDict[i]["etaList"])
+
+        phi = []
+        for i in range(self.totalEvents):
+            phi.append(self.datasetDict[i]["phiList"])
+
         hf = h5py.File(outputFile,'w')
         partArray = hf.create_group("ParticleArray")
         azimuthalArray = hf.create_group("AzimuthalAngle")
+        etaArray = hf.create_group("EtaAngle")
+        phiArray = hf.create_group("PhiAngle")
 
         # Convert Particle Array to HDF5 Group
 
+        print("INFO : Adding n-tuple")
         ak_array = ak.from_iter(xArray)
         form, length, container = ak.to_buffers(ak_array,container=partArray)
         partArray.attrs["form"] = form.tojson()
         partArray.attrs["length"] = json.dumps(length)
+        partArray.keys()
 
         # Convert Azimuthal Angle Array to HDF5 Group
 
+        print("INFO : Adding weights")
         ak_array = ak.from_iter(azArray)
         form, length, container = ak.to_buffers(ak_array,container=azimuthalArray)
         azimuthalArray.attrs["form"] = form.tojson()
         azimuthalArray.attrs["length"] = json.dumps(length)
+        azimuthalArray.keys()
+
+        print("INFO : Adding eta angle")
+        ak_array = ak.from_iter(eta)
+        form, length, container = ak.to_buffers(ak_array,container=etaArray)
+        etaArray.attrs["form"] = form.tojson()
+        etaArray.attrs["length"] = json.dumps(length)
+        etaArray.keys()
+
+        print("INFO : Adding phi angle")
+        ak_array = ak.from_iter(phi)
+        form, length, container = ak.to_buffers(ak_array,container=phiArray)
+        phiArray.attrs["form"] = form.tojson()
+        phiArray.attrs["length"] = json.dumps(length)
+        phiArray.keys()
 
         hf.close()
 
@@ -266,23 +294,41 @@ class GenDataset:
         hf = h5py.File(inputFile,'r')
         partArray = hf.get("ParticleArray")
         azimuthalArray = hf.get("AzimuthalAngle")
+        etaArray = hf.get("EtaAngle")
+        phiArray = hf.get("PhiAngle")
 
         reconstitutedPartArray = ak.from_buffers(
-            ak.forms.Form.fromjson(partArray.attrs["form"]),
-            json.loads(partArray.attrs["length"]),
-            {k: np.asarray(v) for k, v in partArray.items()},
-        )
-        particleArray = ak.to_list(reconstitutedPartArray)
+        ak.forms.Form.fromjson(partArray.attrs["form"]),
+        json.loads(partArray.attrs["length"]),
+        {k: np.asarray(v) for k, v in partArray.items()},
+    )
 
         reconstitutedAzAngle = ak.from_buffers(
             ak.forms.Form.fromjson(azimuthalArray.attrs["form"]),
             json.loads(azimuthalArray.attrs["length"]),
             {k: np.asarray(v) for k, v in azimuthalArray.items()},
         )
+
+        reconstitutedEtaAngle = ak.from_buffers(
+            ak.forms.Form.fromjson(etaArray.attrs["form"]),
+            json.loads(etaArray.attrs["length"]),
+            {k: np.asarray(v) for k, v in etaArray.items()},
+        )
+
+        reconstitutedPhiAngle = ak.from_buffers(
+            ak.forms.Form.fromjson(phiArray.attrs["form"]),
+            json.loads(phiArray.attrs["length"]),
+            {k: np.asarray(v) for k, v in phiArray.items()},
+        )
+
+        particleArray = ak.to_list(reconstitutedPartArray)
         azArray = ak.to_list(reconstitutedAzAngle)
+        etaArray = ak.to_list(reconstitutedEtaAngle)
+        phiArray = ak.to_list(reconstitutedPhiAngle)
+
         print("INFO :  Done Getting Data from File")
 
-        return particleArray,azArray
+        return particleArray,azArray,etaArray,phiArray
 
     def printPretty(self, record):
         '''
@@ -305,7 +351,7 @@ class GenDataset:
                   + "  |" + str('%7.3f' % i[4]) + "|" 
                   + str('%7.3f' % i[5]) + "|" + str('%7.3f' % i[6]))
 
-    def getPlots(self,arrayType : str,recordNo : int = 0):
+    def printPretty(self,arrayType : str,recordNo : int = 0):
         '''
         Print any record of the dataset in a tabular format
 
@@ -486,13 +532,35 @@ class GenDataset:
         self.totalEvents = len(tempDictList)
         print("INFO : Done Applying Baseline Cuts")
 
+    def getEta(self):
+        eta = []
+        for i in range(self.totalEvents):
+            eta.append(self.datasetDict[i]["etaList"])
+        
+        return eta
+
+    def getPhi(self):
+        phi = []
+        for i in range(self.totalEvents):
+            phi.append(self.datasetDict[i]["phiList"])
+
+        return phi
+
+    def getTuple(self):
+        array = []
+        for i in range(self.totalEvents):
+            array.append(self.datasetDict[i]["fourMomenta"])
+
+        return array
+
+
 if __name__ == "__main__":
-    s1 = GenDataset("/home/blizzard/Tests/Background/ttV_10k/Events/run_01/tag_1_delphes_events.root")
-    s1.createDataset('../../datasets/partonCuts/ttV_10k.h5')
-    val = np.random.randint(0,s1.totalEvents)
-    s1.getPlots("fourMomenta",val)
-    s1.getPlots("azimuthalAngle",val)
-    #print()
-    s1.baselineCuts()
-    s1.createDataset('../../datasets/baselineCuts/ttV_10k.h5')
-    print("INFO : The amount of events that survived are " + str(len(s1.datasetDict)))
+    process  = ['llbj']
+    for i in process:
+        print("INFO : The process running is : " + i)
+        s1 = GenDataset("/home/blizzard/Tests/bbWW/"+ i + "_10k/Events/run_01/tag_1_delphes_events.root")
+        s1.createDataset('../../datasets/partonCuts/'+i+'_10k.h5')
+        print("INFO : The amount of events generated are : " + str(len(s1.datasetDict)))
+        s1.baselineCuts()
+        s1.createDataset('../../datasets/baselineCuts/'+i+'_10k.h5')
+        print("INFO : The amount of events that survived are " + str(len(s1.datasetDict)))
