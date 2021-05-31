@@ -7,7 +7,12 @@ define jx = j b b~
 define bx = b b~
 define v = w+ w- z
 define tx = t t~
-generate p p > t t~ v, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > l- vl~)
+generate p p > t t~ w+, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > l- vl~)
+add process p p > t t~ w+, (t > b w+, w+ > j j), (t~ > b~ w-, w- > l- vl~), (w+ > l+ vl)
+add process p p > t t~ w-, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > l- vl~)
+add process p p > t t~ w-, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > j j), (w- > l- vl~)
+add process p p > t t~ z, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > l- vl~)
+add process p p > t t~ z, (t > b w+, w+ > j j), (t~ > b~ w-, w- > j j), (z > l+ l-)
 output ~/Tests/bbWW/ttV_10k
 launch
 1

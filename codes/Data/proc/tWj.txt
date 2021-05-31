@@ -7,7 +7,8 @@ define jx = j b b~
 define bx = b b~
 define v = w+ w- z
 define tx = t t~
-generate pb pb > tx wx jx, wx > lx vx, (tx > wx bx, wx > lx vx)
+generate g b > t w- > l- vl~ b l+ vl
+add process g b > t w- j, (t > b w+, w+ > l+ vl), (w- > l- vl~)
 output ~/Tests/bbWW/tWj_10k
 launch
 1
