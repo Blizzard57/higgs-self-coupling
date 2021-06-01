@@ -555,7 +555,7 @@ class GenDataset:
 
 
 if __name__ == "__main__":
-    process  = ['ttV']
+    process  = ['llbj']
     for i in process:
         print("INFO : The process running is : " + i)
         s1 = GenDataset("/home/blizzard/Tests/bbWW/"+ i + "_10k/Events/run_01/tag_1_delphes_events.root")
