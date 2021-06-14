@@ -7,6 +7,7 @@ define jx = j b b~
 define bx = b b~
 define v = w+ w- z
 define tx = t t~
+set group_subprocesses False
 generate p p > jx jx l+ l- vl vl~
 output ~/Tests/bbWW/jjllvv_10k
 launch

@@ -452,9 +452,9 @@ class GenDataset:
                         flag = False
             
                 # Modulus of ETmiss > 20
-                if momenta[3] == 1:
-                    if momenta[4] <= 20:
-                        flag = False
+                #if momenta[3] == 1:
+                #    if momenta[4] <= 20:
+                #        flag = False
 
             # Remove all the invalid records to save time by not computing when not required
             if not flag:
@@ -555,7 +555,7 @@ class GenDataset:
 
 
 if __name__ == "__main__":
-    process  = ['llbj']
+    process  = ['ttbar','llbj','tWj','ttV','ttbarh','taubb','hh']
     for i in process:
         print("INFO : The process running is : " + i)
         s1 = GenDataset("/home/blizzard/Tests/bbWW/"+ i + "_10k/Events/run_01/tag_1_delphes_events.root")
