@@ -1,0 +1,33 @@
+import model heft
+define pb = p b b~
+define wx = w+ w-
+define lx = l+ l-
+define vx = vl vl~
+define jx = j b b~
+define bx = b b~
+define v = w+ w- z
+define tx = t t~
+generate p p > t t~ h, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > l- vl~)
+output ~/Tests/bbWW/ttbarh_10k
+launch
+1
+2
+3
+done
+set ebeam1 7000.0
+set ebeam2 7000.0
+set ptj 20.0
+set ptb 20.0
+set pta 10.0
+set ptl 10.0
+set etaj 5.0
+set etab 5.0
+set etaa 2.5
+set etal 2.5
+set drbb 1.8
+set drll 1.3
+set mmjj 70.0
+set mmbbmax 160.0
+set mmllmax 75.0
+~/Tests/MPNN_Cards/delphes_card_ATLAS.tcl
+done
