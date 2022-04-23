@@ -25,25 +25,17 @@ def proc_to_gen(proc, signal = 'hh'):
         ret_val += 'add process pb pb > h > h h, '
         ret_val += '(h > w w, w > la vla), (h > b b)\n'
 
-    elif proc == 'ttbar' and signal == 'n2n2':
+    elif proc == 'ttbar' and signal == 'hh':
 
         # Original Decay
         ret_val += 'generate pb pb > t t~, '
-        ret_val += '(t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > j j)\n'
-
-        # Alternative Decay
-        ret_val += 'add process pb pb > t t~, '
-        ret_val += '(t > w+ b, w+ > j j), (t~ > w- b~, w- > l- vl~)\n'
+        ret_val += '(t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > l- vl~)\n'
 
         # Original Decay with One Jet
         ret_val += 'add process pb pb > t t~ j, '
-        ret_val += '(t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > j j)\n'
+        ret_val += '(t > w+ b, w+ > l+ vl), (t~ > w- b~, w- > l- vl~)\n'
 
-        # Alternative Decay with One Jet
-        ret_val += 'add process pb pb > t t~ j, '
-        ret_val += '(t > w+ b, w+ > j j), (t~ > w- b~, w- > l- vl~)\n'
-
-    elif proc == 'wmp' and signal == 'n2n2':
+    elif proc == 'wmp' and signal == 'hh':
         
         # Decay
         ret_val += 'generate pb pb > w, w > la vla\n'
