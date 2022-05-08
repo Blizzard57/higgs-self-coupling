@@ -19,11 +19,11 @@ def proc_to_gen(proc, signal = 'hh'):
 
         # Original Decay
         ret_val += 'generate pb pb > h > h h, '
-        ret_val += '(h > b b), (h > w w, w > la vla)\n'
+        ret_val += '(h > b b~), (h > w w, w > la vla)\n'
 
         # Combinatorics on the Decay
         ret_val += 'add process pb pb > h > h h, '
-        ret_val += '(h > w w, w > la vla), (h > b b)\n'
+        ret_val += '(h > w w, w > la vla), (h > b b~)\n'
 
     elif proc == 'ttbar' and signal == 'hh':
 
@@ -170,8 +170,8 @@ def main(proc_name,sig_flag,gen_proc = True):
             p.wait()
             
             ## Deleting Garbage
-            os.system('rm -rf ' + OUTPUT_DIR + proc_name)
-            os.system('rm ' + TXT_DIR + proc_name + '.txt')
+            #os.system('rm -rf ' + OUTPUT_DIR + proc_name)
+            #os.system('rm ' + TXT_DIR + proc_name + '.txt')
 
 if __name__ == '__main__':
     if len(sys.argv) < 4:
